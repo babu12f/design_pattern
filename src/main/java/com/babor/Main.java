@@ -1,23 +1,21 @@
 package com.babor;
 
-import com.babor.editor.Editor;
-import com.babor.listeners.EmailNotificationListener;
-import com.babor.listeners.LogOpenListener;
+import com.babor.decorators.*;
 
 public class Main {
     public static void main(String[] args) {
-        Editor editor = new Editor();
-        editor.events.subscribe("open", new LogOpenListener("./log_file.txt"));
-        editor.events.subscribe("save", new EmailNotificationListener("admin@example.com"));
-        editor.events.subscribe("save", (eventType, file) -> {
-            System.out.println("editor saved change to the file" + file);
-        });
+        String salaryRecords = "Name,Salary\nJohn Smith,100000\nSteven Jobs,912000";
+        DataSourceDecorator encoded = new CompressionDecorator(
+                new EncryptionDecorator(
+                        new FileDataSource("OutputDemo.txt")));
+        encoded.writeData(salaryRecords);
+        DataSource plain = new FileDataSource("OutputDemo.txt");
 
-        try {
-            editor.openFile("./test.txt");
-            editor.saveFile();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        System.out.println("- Input ----------------");
+        System.out.println(salaryRecords);
+        System.out.println("- Encoded --------------");
+        System.out.println(plain.readData());
+        System.out.println("- Decoded --------------");
+        System.out.println(encoded.readData());
     }
 }
